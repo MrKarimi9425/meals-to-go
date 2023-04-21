@@ -1,20 +1,51 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { ThemeProvider } from 'styled-components/native';
+import { theme } from './src/infrastructure/theme';
+import { useFonts as useOswald, Oswald_400Regular, } from '@expo-google-fonts/oswald';
+import { useFonts as useLato, Lato_400Regular, Lato_700Bold } from '@expo-google-fonts/lato';
+import { RestaurantsContextProvider } from './src/services/restaurants/restaurants.context';
+import { LocationContextProvider } from './src/services/location/location.context';
+import { Navigation } from './src/infrastructure/navigation';
+import 'react-native-gesture-handler';
+import { FavouritesContextProvider } from './src/services/favourites/favourites.context';
+import { initializeApp, getApps } from "firebase/app";
+import { getReactNativePersistence, initializeAuth } from "firebase/auth/react-native"
+import React, { useEffect, useState } from 'react';
+import { AuthenticationContextProvider } from './src/services/authentication/authentication.context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+const firebaseConfig = {
+  apiKey: "AIzaSyDNT62CyQps0ZM_RlCkObiQfsndxAJrRVc",
+  authDomain: "mealstogo-68a30.firebaseapp.com",
+  projectId: "mealstogo-68a30",
+  storageBucket: "mealstogo-68a30.appspot.com",
+  messagingSenderId: "664401678697",
+  appId: "1:664401678697:web:1efcf53aa455417d3badf8"
+};
+if (getApps().length == 0) {
+  const app = initializeApp(firebaseConfig);
+  initializeAuth(app, {
+    persistence: getReactNativePersistence(AsyncStorage)
+  });
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default function App() {
+  let [oswald] = useOswald({
+    Oswald_400Regular
+  });
+  let [lato] = useLato({
+    Lato_400Regular,
+    Lato_700Bold
+  });
+
+  if (!oswald || !lato) {
+    return null;
+  }
+
+  return (
+    <ThemeProvider theme={theme}>
+      <AuthenticationContextProvider>
+              <Navigation />
+      </AuthenticationContextProvider>
+    </ThemeProvider>
+  );
+} 
